@@ -345,12 +345,6 @@ async function dropDatabase(eliminarBasedeDatos){
 // dropDatabase("SoftDCano");
 
 
-
-
-
-
-
-
 //Pipelines, lookup
 async function aggregateVentas() {
     const Client = new MongoClient(URI);
