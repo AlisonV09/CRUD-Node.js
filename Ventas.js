@@ -86,7 +86,12 @@ async function PoblarVentas(RegistrosVentas){
             Datos.push(DatosInsertar);
             console.log(`Se han insertado: ${Datos.length} datos`)
         }
-        const Result= await Client.db('SoftDCano').collection('Ventas').insertMany(Datos)
+        const Result= await Client.db('SoftDCano').collection('Ventas').insertMany(Datos);
+        if (Result.insertedCount > 0) {
+            console.log(`Se han insertado ${Result.insertedCount} documentos correctamente`);
+        } else {
+            console.log("No se han insertado documentos");
+        }
         
     }catch(e){
         console.log(e);
@@ -120,7 +125,7 @@ async function FindOneVenta(IdVenta){
     }
 }
 
-// FindOneVenta(88);
+FindOneVenta(2023);
 
 async function FindVenta(PagoVenta){
     const Client = new MongoClient(URI);
@@ -141,7 +146,7 @@ async function FindVenta(PagoVenta){
     }
 }
 
-// FindVenta("Efectivo");
+// FindVenta({});
 
 //CREATE
 async function insertOneVenta(nuevaVenta){
@@ -150,8 +155,12 @@ async function insertOneVenta(nuevaVenta){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Ventas").insertOne(nuevaVenta);
-        console.log(`Se creo una nueva venta con el siguiente id: ${result.insertedId}`);
-        console.log(nuevaVenta);
+        if(result){
+            console.log(`Se creo una nueva venta con el siguiente id: ${result.insertedId}`);
+            console.log(nuevaVenta);
+        }else{
+            console.log("No se creo la venta");
+        } 
     }catch(e){ 
         console.log(e);
     }finally{
@@ -159,30 +168,17 @@ async function insertOneVenta(nuevaVenta){
     }
 }
 // insertOneVenta({
-//     idVenta: 2000,
-//     idUsuario: 786897402,
-//     idPedido: 45,
-//     dni: 507540174,
-//     fechaVenta: new Date("2023-05-23T05:27:15.754+00:00"),
-//     estadoVenta: "Completada",
+//     idVenta: 2023,
+//     idUsuario: 1013457130,
+//     idPedido: 4,
+//     dni: 1013457138,
+//     fechaVenta: new Date("2023-06-30T05:27:15.754+00:00"),
+//     estadoVenta: "Cancelada",
 //     tipoPagoVenta: "Transferencia",
-//     totalVenta: 16000,
+//     totalVenta: 60000,
 //     comprobante: "https://loremflickr.com/640/480?lock=2212244194590720",
 // });
 
-// insertOneVenta({
-//     idVenta: 2005,
-//     idUsuario: 114719248,
-//     idPedido: 145,
-//     dni: 121066255,
-//     fechaVenta: new Date("2023-05-23T05:27:15.754+00:00"),
-//     estadoVenta: "Completada",
-//     tipoPagoVenta: "Efectivo",
-//     totalVenta: 88000,
-//     comprobante: "https://loremflickr.com/640/480?lock=2212244194590720",
-//     comentarios: "Me gusto la atencion",
-//     calificaciones: [5, 4, 3, 2],
-// });
 
 async function insertManyVenta(nuevaVenta){
     const Client = new MongoClient(URI);
@@ -190,8 +186,12 @@ async function insertManyVenta(nuevaVenta){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Ventas").insertMany(nuevaVenta);
-        console.log(`Se creo ${result.insertedCount} nuevas ventas`);
-        console.log(nuevaVenta);
+        if(result){
+            console.log(`Se creo ${result.insertedCount} nuevas ventas`);
+            console.log(nuevaVenta);
+        }else{
+            console.log("No se creo ninguna venta");
+        }
     }catch(e){ 
         console.log(e);
     }finally{
@@ -210,39 +210,6 @@ const nuevaVenta = [
         tipoPagoVenta: "Transferencia",
         totalVenta: 55800,
         comprobante: "https://loremflickr.com/640/480?lock=6742838438002688",
-    },
-    {
-        idVenta: 2002,
-        idUsuario: 429084990,
-        idPedido: 508,
-        dni: 644276661,
-        fechaVenta: new Date("2023-05-22T05:15:46.754+00:00"),
-        estadoVenta: "En proceso",
-        tipoPagoVenta: "Transferencia",
-        totalVenta: 22300,
-        comprobante: "https://picsum.photos/seed/6Gs6IcTM1k/640/480",
-    },
-    {
-        idVenta: 2003,
-        idUsuario: 260737121,
-        idPedido: 789,
-        dni: 971242952,
-        fechaVenta: new Date("2023-05-22T05:16:10.754+00:00"),
-        estadoVenta: "En proceso",
-        tipoPagoVenta: "Efectivo",
-        totalVenta: 12500,
-        comprobante: "https://picsum.photos/seed/1my3v/640/480",
-    },
-    {
-        idVenta: 2004,
-        idUsuario: 260012975,
-        idPedido: 453,
-        dni: 618301363,
-        fechaVenta: new Date("2023-05-22T05:17:15.754+00:00"),
-        estadoVenta: "Cancelada",
-        tipoPagoVenta: "Efectivo",
-        totalVenta: 26700,
-        comprobante: "https://loremflickr.com/640/480?lock=2693420562776064",
     }
   ];
   
@@ -255,9 +222,14 @@ async function updateOneVenta(IdVenta, atributoCambio){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Ventas").updateOne
-        ({idVenta: IdVenta},{$set:{estadoVenta: atributoCambio}});
-        console.log(`${result.matchedCount} documento cumple con el criterio de busqueda`);
-        console.log(`${result.modifiedCount} documento fue actualizado`);
+        ({idVenta: IdVenta},{$set:{totalVenta: atributoCambio}});
+        if(result){
+            console.log(`${result.matchedCount} documento cumple con el criterio de busqueda`);
+            console.log(`${result.modifiedCount} documento fue actualizado`);
+            console.log(result);
+        }else{
+            console.log("No se actualizo la venta");
+        }
     }catch(e){ 
         console.log(e);
     }finally{
@@ -265,7 +237,7 @@ async function updateOneVenta(IdVenta, atributoCambio){
     }
 }
 
-// updateOneVenta(2004, "Completada");
+// updateOneVenta(2023, 100000);
 
 async function updateManyVenta(estaVenta, atributoCambio){
     const Client = new MongoClient(URI);
@@ -274,8 +246,14 @@ async function updateManyVenta(estaVenta, atributoCambio){
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Ventas").updateMany
         ({estadoVenta: estaVenta},{$set:{estadoVenta: atributoCambio}});
-        console.log(`${result.matchedCount} documentos cumplen con el criterio de busqueda`);
-        console.log(`${result.modifiedCount} documentos fueron actualizados`);
+        if(result){
+            console.log(`${result.matchedCount} documentos cumplen con el criterio de busqueda`);
+            console.log(`${result.modifiedCount} documentos fueron actualizados`);
+            console.log(result);
+        }else{
+            console.log("No se actualizo ninguna venta");
+        }
+        
     }catch(e){ 
         console.log(e);
     }finally{
@@ -283,27 +261,7 @@ async function updateManyVenta(estaVenta, atributoCambio){
     }
 }
 
-// updateManyVenta("En proceso", "Cancelada");
-
-async function updateManyUpsertVenta(){
-    const Client = new MongoClient(URI);
-
-    try{
-        await Client.connect();
-        const result = await Client.db("SoftDCano").collection("Ventas").updateMany(
-            {comentarios:{$exists: false}},
-            {$set:{comentarios: "Excelente atención"}},
-            {$upsert:true});
-        console.log(`${result.matchedCount} documentos cumplen con el criterio de busqueda`);
-        console.log(`${result.modifiedCount} documentos fueron actualizados`);
-    }catch(e){ 
-        console.log(e);
-    }finally{
-        Client.close();
-    }
-}
-
-// updateManyUpsertVenta();
+// updateManyVenta({}, {});
 
 //DELETE
 async function deleteOneVenta(eliminarVenta){
@@ -312,7 +270,11 @@ async function deleteOneVenta(eliminarVenta){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Ventas").deleteOne(eliminarVenta);
-        console.log(`${result.deletedCount} venta eliminada`);
+        if(result){
+            console.log(`${result.deletedCount} venta eliminada`);
+        }else{
+            console.log("No se elimino la venta");
+        } 
     }catch(e){ 
         console.log(e);
     }finally{
@@ -320,7 +282,7 @@ async function deleteOneVenta(eliminarVenta){
     }
 }
 
-// deleteOneVenta({idVenta: 2002});
+// deleteOneVenta({idVenta: 2023});
 
 async function deleteManyVenta(eliminarVentas){
     const Client = new MongoClient(URI);
@@ -328,7 +290,11 @@ async function deleteManyVenta(eliminarVentas){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Ventas").deleteMany(eliminarVentas);
-        console.log(`${result.deletedCount} ventas eliminadas`);
+        if(result){
+            console.log(`${result.deletedCount} ventas eliminadas`);
+        }else{
+            console.log("No se elimino ninguna venta");
+        }   
     }catch(e){ 
         console.log(e);
     }finally{
@@ -336,7 +302,7 @@ async function deleteManyVenta(eliminarVentas){
     }
 }
 
-// deleteManyVenta({estadoVenta: "Cancelada"});
+// deleteManyVenta({estadoVenta:});
 
 async function dropCollectionVenta(eliminarColeccion){
     const Client = new MongoClient(URI);
@@ -344,7 +310,11 @@ async function dropCollectionVenta(eliminarColeccion){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection(eliminarColeccion).drop();
-        console.log(`La colección ${eliminarColeccion} ha sido eliminada`);
+        if(result){
+            console.log(`La colección ${eliminarColeccion} ha sido eliminada`);
+        }else{
+            console.log("No se elimino la colección");
+        }
     }catch(e){ 
         console.log(e);
     }finally{
@@ -360,7 +330,11 @@ async function dropDatabase(eliminarBasedeDatos){
     try{
         await Client.connect();
         const result = await Client.db(eliminarBasedeDatos).dropDatabase();
-        console.log(`La base de datos ${eliminarBasedeDatos} ha sido eliminada`);
+        if(result){
+            console.log(`La base de datos ${eliminarBasedeDatos} ha sido eliminada`);
+        }else{
+            console.log("No se elimino la base de datos");
+        }    
     }catch(e){ 
         console.log(e);
     }finally{
@@ -369,6 +343,13 @@ async function dropDatabase(eliminarBasedeDatos){
 }
 
 // dropDatabase("SoftDCano");
+
+
+
+
+
+
+
 
 //Pipelines, lookup
 async function aggregateVentas() {
@@ -398,9 +379,12 @@ async function aggregateVentas() {
                     tipoPagoVenta: true,
                     pedidos: true
                 }
+            },{
+                $unwind: "$pedidos" 
             }
         ]).toArray();
         console.log("Consulta exitosa");
+        console.log(result);
     } catch (e) {
       console.log(e);
     } finally {
@@ -425,7 +409,7 @@ async function aggregate2Ventas() {
                     as: "usuario"
                 }
             },{
-                $unwind: "$calificaciones" 
+                $unwind: "$usuario" 
             },{
                 $project: {
                     idVenta: true,
@@ -439,6 +423,7 @@ async function aggregate2Ventas() {
             }
         ]).toArray();
         console.log("Consulta exitosa");
+        console.log(result);
     } catch (e) {
       console.log(e);
     } finally {

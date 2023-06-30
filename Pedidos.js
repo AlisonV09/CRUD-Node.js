@@ -76,7 +76,12 @@ async function PoblarPedidos(RegistrosPedidos){
             Datos.push(DatosInsertar);
             console.log(`Se han insertado: ${Datos.length} datos`)
         }
-        const Result= await Client.db('SoftDCano').collection('Pedidos').insertMany(Datos)
+        const Result= await Client.db('SoftDCano').collection('Pedidos').insertMany(Datos);
+        if (Result.insertedCount > 0) {
+            console.log(`Se han insertado ${Result.insertedCount} documentos correctamente`);
+        } else {
+            console.log("No se han insertado documentos");
+        }
     }catch(e){
         console.log(e);
     }finally{
@@ -89,17 +94,17 @@ async function PoblarPedidos(RegistrosPedidos){
 
 //CRUD
 //FIND
-async function FindOnePedido(estaPedido){
+async function FindOnePedido(idPedido){
     const Client = new MongoClient(URI);
 
     try{
         await Client.connect();
-        const result = await Client.db("SoftDCano").collection("Pedidos").findOne({estadoPedido: estaPedido});
+        const result = await Client.db("SoftDCano").collection("Pedidos").findOne({idPedido: idPedido});
         if(result){
-            console.log(`Se encontro un pedido con el siguiente estado: ${estaPedido}`);
+            console.log(`Se encontro un pedido con el siguiente id: ${idPedido}`);
             console.log(result);
         }else{
-            console.log(`No se encontro un pedido con el siguiente estado: ${estaPedido}`);
+            console.log(`No se encontro un pedido con el siguiente id: ${idPedido}`);
         }
     }catch(e){
         console.log(e);
@@ -108,19 +113,19 @@ async function FindOnePedido(estaPedido){
     }
 }
 
-FindOnePedido("Entregado");
+// FindOnePedido(2006);
 
-async function FindPedido(estaPedido){
+async function FindPedido(){
     const Client = new MongoClient(URI);
 
     try{
         await Client.connect();
-        const result = await Client.db("SoftDCano").collection("Pedidos").find({estadoPedido: estaPedido}).project({idPedido: true, estadoPedido: true, tipoPagoPedido: true}).sort({tipoPagoPedido: 1}).limit(10).toArray();
+        const result = await Client.db("SoftDCano").collection("Pedidos").find({}).project({idPedido: true, estadoPedido: true, tipoPagoPedido: true}).sort({tipoPagoPedido: 1}).limit(10).toArray();
         if(result.length > 0){
-            console.log(`Se encontro un pedido con el siguiente estado: ${estaPedido}`);
+            console.log(`Se encontraron registros`);
             console.log(result);
         }else{
-            console.log(`No se encontro un pedido con el siguiente estado: ${estaPedido}`);
+            console.log(`No se encontraron registros`);
         }
     }catch(e){
         console.log(e);
@@ -129,7 +134,7 @@ async function FindPedido(estaPedido){
     }
 }
 
-// FindPedido("Confirmar");
+// FindPedido();
 
 //CREATE
 async function insertOnePedido(nuevoPedido){
@@ -138,8 +143,13 @@ async function insertOnePedido(nuevoPedido){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Pedidos").insertOne(nuevoPedido);
-        console.log(`Se creo un nuevo pedido con el siguiente id: ${result.insertedId}`);
-        console.log(nuevoPedido);
+        if(result){
+            console.log(`Se creo un nuevo pedido con el siguiente id: ${result.insertedId}`);
+            console.log(nuevoPedido);
+        }else{
+            console.log(`No se creo ningun pedido`);
+        }
+       
     }catch(e){ 
         console.log(e);
     }finally{
@@ -148,27 +158,15 @@ async function insertOnePedido(nuevoPedido){
 }
 
 // insertOnePedido({
-//     idPedido: 2000,
-//     dni: 718475348,
-//     idProducto: 88,
+//     idPedido: 2006,
+//     dni: 1013457130,
+//     idProducto: 2,
 //     estadoPedido: "Confirmar",
-//     fechaPedido: new Date("2023-05-21T05:27:08.754+00:00"),
-//     tipoPagoPedido: "Transferencia",
-//     totalPedido: 25500,
-    
+//     fechaPedido: new Date("2023-06-30T05:27:08.754+00:00"),
+//     tipoPagoPedido: "Efectivo",
+//     totalPedido: 50000,
 // });
 
-// insertOnePedido({
-//     idPedido: 2004,
-//     dni: 762540687,
-//     idProducto: 23,
-//     estadoPedido: "Entregado",
-//     fechaPedido: new Date("2023-05-23T05:27:08.754+00:00"),
-//     tipoPagoPedido: "Efectivo",
-//     totalPedido: 11400,
-//     comentarios: "La ropa es de muy buena calidad",
-//     calificaciones: [5, 5, 5, 4],
-// });
 
 async function insertManyPedido(nuevoPedido){
     const Client = new MongoClient(URI);
@@ -176,8 +174,12 @@ async function insertManyPedido(nuevoPedido){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Pedidos").insertMany(nuevoPedido);
-        console.log(`Se creo ${result.insertedCount} nuevos pedidos`);
-        console.log(nuevoPedido);
+        if(result){
+            console.log(`Se creo ${result.insertedCount} nuevos pedidos`);
+            console.log(nuevoPedido);
+        }else{
+            console.log("No se insertaron los datos");
+        }   
     }catch(e){ 
         console.log(e);
     }finally{
@@ -194,24 +196,6 @@ const nuevoPedido = [
         fechaPedido: new Date("2023-05-21T05:27:08.754+00:00"),
         tipoPagoPedido: "Transferencia",
         totalPedido: 25500,
-    },
-    {
-        idPedido: 2002,
-        dni: 991884598,
-        idProducto: 20,
-        estadoPedido: "Entregado",
-        fechaPedido: new Date("2023-05-21T05:27:08.754+00:00"),
-        tipoPagoPedido: "Efectivo",
-        totalPedido: 10500,
-    },
-    {
-        idPedido: 2003,
-        dni: 563524623,
-        idProducto: 56,
-        estadoPedido: "Cancelado",
-        fechaPedido: new Date("2023-05-22T05:27:08.754+00:00"),
-        tipoPagoPedido: "Transferencia",
-        totalPedido: 55000,
     }
   ];
   
@@ -224,9 +208,14 @@ async function updateOnePedido(Pedido, atributoCambio){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Pedidos").updateOne
-        ({idPedido: Pedido},{$set:{estadoPedido: atributoCambio}});
-        console.log(`${result.matchedCount} documento cumple con el criterio de busqueda`);
-        console.log(`${result.modifiedCount} documento fue actualizado`);
+        ({idPedido: Pedido},{$set: atributoCambio});
+        if(result){
+            console.log(`${result.matchedCount} documento cumple con el criterio de busqueda`);
+            console.log(`${result.modifiedCount} documento fue actualizado`);
+            console.log(result);
+        }else{
+            console.log("No se actualizo ningun pedido");
+        }
     }catch(e){ 
         console.log(e);
     }finally{
@@ -234,7 +223,7 @@ async function updateOnePedido(Pedido, atributoCambio){
     }
 }
 
-// updateOnePedido(2002, "Cancelado");
+// updateOnePedido(2006, {idProducto: 5, estadoPedido: "enviado", tipoPagoPedido: "Transferencia"});
 
 async function updateManyPedido(estado, atributoCambio){
     const Client = new MongoClient(URI);
@@ -243,8 +232,13 @@ async function updateManyPedido(estado, atributoCambio){
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Pedidos").updateMany
         ({estadoPedido: estado},{$set:{estadoPedido: atributoCambio}});
-        console.log(`${result.matchedCount} documentos cumplen con el criterio de busqueda`);
-        console.log(`${result.modifiedCount} documentos fueron actualizados`);
+        if(result){
+            console.log(`${result.matchedCount} documentos cumplen con el criterio de busqueda`);
+            console.log(`${result.modifiedCount} documentos fueron actualizados`);
+            console.log(result);
+        }else{
+            console.log("No se actualizo ningun pedido");
+        }    
     }catch(e){ 
         console.log(e);
     }finally{
@@ -252,27 +246,7 @@ async function updateManyPedido(estado, atributoCambio){
     }
 }
 
-// updateManyPedido("Confirmar", "Enviado");
-
-async function updateManyUpsertPedido(estado, atributoCambio){
-    const Client = new MongoClient(URI);
-
-    try{
-        await Client.connect();
-        const result = await Client.db("SoftDCano").collection("Pedidos").updateMany(
-            {comentarios:{$exists: false}},
-            {$set:{comentarios: "La ropa es muy bonita"}},
-            {$upsert:true});
-        console.log(`${result.matchedCount} documentos cumplen con el criterio de busqueda`);
-        console.log(`${result.modifiedCount} documentos fueron actualizados`);
-    }catch(e){ 
-        console.log(e);
-    }finally{
-        Client.close();
-    }
-}
-
-// updateManyUpsertPedido();
+// updateManyPedido({}, {});
 
 //DELETE
 async function deleteOnePedido(eliminarPedido){
@@ -281,7 +255,11 @@ async function deleteOnePedido(eliminarPedido){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Pedidos").deleteOne(eliminarPedido);
-        console.log(`${result.deletedCount} pedido eliminado`);
+        if(result){
+            console.log(`${result.deletedCount} pedido eliminado`);
+        }else{
+            console.log("No se elimino ningun pedido");
+        }
     }catch(e){ 
         console.log(e);
     }finally{
@@ -289,7 +267,7 @@ async function deleteOnePedido(eliminarPedido){
     }
 }
 
-// deleteOnePedido({idPedido: 2003});
+// deleteOnePedido({idPedido: 2006});
 
 async function deleteManyPedido(eliminarPedidos){
     const Client = new MongoClient(URI);
@@ -297,7 +275,11 @@ async function deleteManyPedido(eliminarPedidos){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection("Pedidos").deleteMany(eliminarPedidos);
-        console.log(`${result.deletedCount} pedidos eliminados`);
+        if(result){
+            console.log(`${result.deletedCount} pedidos eliminados`);
+        }else{
+            console.log("No se elimino ningun pedido");
+        }    
     }catch(e){ 
         console.log(e);
     }finally{
@@ -305,7 +287,7 @@ async function deleteManyPedido(eliminarPedidos){
     }
 }
 
-// deleteManyPedido({estadoPedido: "Cancelado"});
+// deleteManyPedido({estadoPedido:});
 
 async function dropCollectionPedido(eliminarColeccion){
     const Client = new MongoClient(URI);
@@ -313,7 +295,11 @@ async function dropCollectionPedido(eliminarColeccion){
     try{
         await Client.connect();
         const result = await Client.db("SoftDCano").collection(eliminarColeccion).drop();
-        console.log(`La colección ${eliminarColeccion} ha sido eliminada`);
+        if(result){
+            console.log(`La colección ${eliminarColeccion} ha sido eliminada`);
+        }else{
+            console.log("No se elimino la colección");
+        }    
     }catch(e){ 
         console.log(e);
     }finally{
@@ -329,7 +315,11 @@ async function dropDatabase(eliminarBasedeDatos){
     try{
         await Client.connect();
         const result = await Client.db(eliminarBasedeDatos).dropDatabase();
-        console.log(`La base de datos ${eliminarBasedeDatos} ha sido eliminada`);
+        if(result){
+            console.log(`La base de datos ${eliminarBasedeDatos} ha sido eliminada`);
+        }else{
+            console.log("No se elimino la base de datos");
+        }  
     }catch(e){ 
         console.log(e);
     }finally{
@@ -338,6 +328,12 @@ async function dropDatabase(eliminarBasedeDatos){
 }
 
 // dropDatabase("SoftDCano");
+
+
+
+
+
+
 
 //Pipelines, lookup
 async function aggregatePedidos() {
@@ -366,9 +362,12 @@ async function aggregatePedidos() {
                     tipoPagoPedido: true,
                     datosComprador: true
                 }
+            },{
+                $unwind: "$datosComprador"
             }
         ]).toArray();
         console.log("Consulta exitosa");
+        console.log(result);
     } catch (e) {
       console.log(e);
     } finally {
@@ -393,7 +392,7 @@ async function aggregate2Pedidos() {
                     as: "productos"
                 }
             },{
-                $unwind: "$calificaciones"
+                $unwind: "$productos"
             },{
                 $project: {
                     idPedido: true, 
@@ -405,6 +404,7 @@ async function aggregate2Pedidos() {
             }
         ]).toArray();
         console.log("Consulta exitosa");
+        console.log(result);
     } catch (e) {
       console.log(e);
     } finally {
